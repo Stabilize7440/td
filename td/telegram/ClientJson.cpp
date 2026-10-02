@@ -125,20 +125,32 @@ int json_create_client_id() {
   return static_cast<int>(get_manager()->create_client_id());
 }
 
-void json_send(int client_id, Slice request) {
+void json_send(int client_id, int64 request_id, Slice request) {
   auto parsed_request = to_request(request);
-  auto request_id = extra_id.fetch_add(1, std::memory_order_relaxed);
   if (!parsed_request.second.empty()) {
     std::lock_guard<std::mutex> guard(extra_mutex);
     extra[request_id] = std::move(parsed_request.second);
   }
-  get_manager()->send(client_id, request_id, std::move(parsed_request.first));
+  get_manager()->send(client_id, static_cast<uint64>(request_id), std::move(parsed_request.first));
 }
 
-const char *json_receive(double timeout) {
+const char *json_receive(double timeout, int *client_id, int64 *request_id) {
   auto response = get_manager()->receive(timeout);
   if (!response.object) {
+    if (client_id != nullptr) {
+      *client_id = 0;
+    }
+    if (request_id != nullptr) {
+      *request_id = 0;
+    }
     return nullptr;
+  }
+
+  if (client_id != nullptr) {
+    *client_id = response.client_id;
+  }
+  if (request_id != nullptr) {
+    *request_id = static_cast<int64>(response.request_id);
   }
 
   string extra_str;

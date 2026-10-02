@@ -35,12 +35,12 @@ int td_create_client_id() {
   return td::json_create_client_id();
 }
 
-void td_send(int client_id, const char *request) {
-  td::json_send(client_id, td::Slice(request == nullptr ? "" : request));
+void td_send(int client_id, int64_t request_id, const char *request) {
+  td::json_send(client_id, request_id, td::Slice(request == nullptr ? "" : request));
 }
 
-const char *td_receive(double timeout) {
-  return td::json_receive(timeout);
+const char *td_receive(double timeout, int *client_id, int64_t *request_id) {
+  return td::json_receive(timeout, client_id, request_id);
 }
 
 const char *td_execute(const char *request) {

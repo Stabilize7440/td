@@ -36,9 +36,9 @@ class ClientJson final {
 
 int json_create_client_id();
 
-void json_send(int client_id, Slice request);
+void json_send(int client_id, std::int64_t request_id, Slice request);
 
-const char *json_receive(double timeout);
+const char *json_receive(double timeout, int *client_id, std::int64_t *request_id);
 
 const char *json_execute(Slice request);
 

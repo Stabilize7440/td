@@ -49,6 +49,7 @@
  */
 
 #include "td/telegram/tdjson_export.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,17 +65,20 @@ TDJSON_EXPORT int td_create_client_id();
 /**
  * Sends request to the TDLib client. May be called from any thread.
  * \param[in] client_id TDLib client identifier.
+ * \param[in] request_id TDLib request identifier.
  * \param[in] request JSON-serialized null-terminated request to TDLib.
  */
-TDJSON_EXPORT void td_send(int client_id, const char *request);
+TDJSON_EXPORT void td_send(int client_id, int64_t request_id, const char *request);
 
 /**
  * Receives incoming updates and request responses. Must not be called simultaneously from two different threads.
  * The returned pointer can be used until the next call to td_receive or td_execute, after which it will be deallocated by TDLib.
  * \param[in] timeout The maximum number of seconds allowed for this function to wait for new data.
+ * \param[out] client_id Returned TDLib client identifier.
+ * \param[out] request_id Returned TDLib request identifier.
  * \return JSON-serialized null-terminated incoming update or request response. May be NULL if the timeout expires.
  */
-TDJSON_EXPORT const char *td_receive(double timeout);
+TDJSON_EXPORT const char *td_receive(double timeout, int *client_id, int64_t *request_id);
 
 /**
  * Synchronously executes a TDLib request.
